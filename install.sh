@@ -6,7 +6,7 @@
 usage()
 {
     echo "usage:"
-    echo "bash install.sh -f username-list-file -n host-name -e email-address"
+    echo "bash install.sh -n host-name -e email-address"
 }
 
 
