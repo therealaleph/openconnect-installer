@@ -51,7 +51,8 @@ wait
 echo '[30%  ] Changing the default settings...'
 sed -i 's/auth = "pam"/#auth = "pam"\nauth = "plain\[\/etc\/ocserv\/ocpasswd]"/' /etc/ocserv/ocserv.conf &
 wait
-sed -i 's/auth = "pam[gid-min=1000]"/#auth = "pam[gid-min=1000]"'
+sed -i 's/^auth = "pam/#DELETED/' /etc/ocserv/ocserv.conf & 
+wait
 sed -i 's/try-mtu-discovery = false/try-mtu-discovery = true/' /etc/ocserv/ocserv.conf &
 wait
 sed -i 's/#dns = 192.168.1.2/dns = 1.1.1.1\ndns = 8.8.8.8/' /etc/ocserv/ocserv.conf &
