@@ -16,17 +16,9 @@ LIST=""
 HOST_NAME=""
 EMAIL_ADDR=""
 
-if [[ $(dnf -q check-update | wc -l) > 0 ]] ; then
-    echo 'You must be updated before this script.'
-    echo 'Run: yum update'
-    exit
-fi
 
 while [[ $1 != "" ]]; do
     case $1 in
-        -f | --list )     shift
-			        LIST=$1
-                                ;;
         -n | --hostname )     shift
 			        HOST_NAME=$1
                                 ;;
@@ -43,25 +35,13 @@ while [[ $1 != "" ]]; do
     shift
 done
 
-if [[ $HOST_NAME == "" ]] || [[ $EMAIL_ADDR == "" ]] || [[ $LIST == "" ]] ; then
+if [[ $HOST_NAME == "" ]] || [[ $EMAIL_ADDR == "" ]]  ; then
   usage
   exit
 fi
 
 echo '[10%  ] Start installation...'
-yum -q update -y  > /dev/null &
-wait
-yum install epel-release -y > /dev/null &
-wait
-yum repolist enabled > /dev/null &
-wait
-yum -q update --assumeno > /dev/null &
-wait
-
-yum install iptables-services -y > /dev/null &
-wait
-
-yum install ocserv certbot -y > /dev/null &
+sudo apt update && sudo apt install -y certbot ocserv 
 wait
 
 echo '[20%  ] Request a valid certificate...'
@@ -71,6 +51,7 @@ wait
 echo '[30%  ] Changing the default settings...'
 sed -i 's/auth = "pam"/#auth = "pam"\nauth = "plain\[\/etc\/ocserv\/ocpasswd]"/' /etc/ocserv/ocserv.conf &
 wait
+sed -i 's/auth = "pam[gid-min=1000]"/#auth = "pam[gid-min=1000]"'
 sed -i 's/try-mtu-discovery = false/try-mtu-discovery = true/' /etc/ocserv/ocserv.conf &
 wait
 sed -i 's/#dns = 192.168.1.2/dns = 1.1.1.1\ndns = 8.8.8.8/' /etc/ocserv/ocserv.conf &
@@ -122,17 +103,6 @@ wait
 sysctl -p & # apply wihout rebooting
 wait
 
-echo '[60%  ] Adding users...'
-echo ''
-if [[ $LIST != "" ]] ; then
-  while read -r -a line; do
-    if [[ "${line[0]}" != "" ]] ; then
-      echo "   For user ${line[0]} password updated with ${line[1]}"
-      echo "${line[1]}" | ocpasswd -c /etc/ocserv/ocpasswd "${line[0]}" &
-      wait
-    fi
-  done < $LIST
-fi
 
 echo '[70%  ] Preparing ocserv service...'
 
