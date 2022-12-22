@@ -123,32 +123,10 @@ wait
 
 systemctl daemon-reload &
 wait
-systemctl stop ocserv.socket > /dev/null &
-wait
-systemctl disable ocserv.socket > /dev/null &
-wait
+
 
 echo '[80%  ] Start ocserv service...'
 systemctl restart ocserv.service > /dev/null &
-wait
-#systemctl status ocserv.service &
-#wait
-
-#iptables -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT & # Allow SSH port. Is this port really configured?
-#iptables -P INPUT DROP & # If you have not ACCEPT the SSH port connection before, do not run this command! 
-#wait
-
-echo '[90%  ] Persistent iptables rules...'
-iptables-save > /etc/iptables.rules &
-wait
-
-systemctl enable iptables &
-wait
-
-service iptables save &
-wait
-
-systemctl start iptables &
 wait
 
 echo '[100% ] Your VPN server is ready to use.'
